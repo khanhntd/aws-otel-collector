@@ -503,7 +503,9 @@ jobs:
           max_attempts: 3
           timeout_minutes: 8
           retry_wait_seconds: 20
-          command: cd testing-framework/terraform/eks && terraform destroy -auto-approve
+          command: |
+            cd testing-framework/terraform/eks 
+            if terraform destroy -auto-approve; then exit 0; fi
 
   delete-images-binaries-if-fail:
     runs-on: ubuntu-latest
