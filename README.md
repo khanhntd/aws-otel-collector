@@ -1,5 +1,4 @@
-[![CI](https://github.com/aws-observability/aws-otel-collector/actions/workflows/CI-Batched.yml/badge.svg?branch=main)](https://github.com/aws-observability/aws-otel-collector/actions/workflows/CI-Batched.yml)
-[![CD](https://github.com/aws-observability/aws-otel-collector/actions/workflows/CD-refactor.yml/badge.svg)](https://github.com/aws-observability/aws-otel-collector/actions/workflows/CD-refactor.yml)
+[![C/I](https://github.com/aws-observability/aws-otel-collector/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/aws-observability/aws-otel-collector/actions/workflows/CI.yml)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/aws-observability/aws-otel-collector)
 
 
@@ -13,9 +12,9 @@ See the [AWS Distro for OpenTelemetry documentation](https://aws-otel.github.io/
 ### Getting Help
 
 Use the community resources below for getting help with the ADOT Collector.
+* Open a support ticket with [AWS Support](http://docs.aws.amazon.com/awssupport/latest/user/getting-started.html).
 * Use [GitHub issues](https://github.com/aws-observability/aws-otel-collector/issues) to report bugs and request features.
 * Join our GitHub [Community](https://github.com/aws-observability/aws-otel-community) for AWS Distro for OpenTelemetry to ask your questions, file issues, or request enhancements.
-* Open a support ticket with [AWS Support](http://docs.aws.amazon.com/awssupport/latest/user/getting-started.html).
 * If you think you may have found a bug, open a [bug report](https://github.com/aws-observability/aws-otel-collector/issues/new?template=bug_report.md).
 * For contributing guidelines, refer to [CONTRIBUTING.md](CONTRIBUTING.md).
 
@@ -27,29 +26,32 @@ This table represents the supported components of the ADOT Collector. The highli
 |---------------------------------|-------------------------------|------------------------------------|------------------------|
 | prometheusreceiver              | attributesprocessor           | `awsxrayexporter`                  | healthcheckextension   |
 | otlpreceiver                    | resourceprocessor             | `awsemfexporter`                   | pprofextension         |
-| `awsecscontainermetricsreceiver`| batchprocessor                | `awsprometheusremotewriteexporter`* | zpagesextension        |
+| `awsecscontainermetricsreceiver`| batchprocessor                |  prometheusremotewriteexporter     | zpagesextension        |
 | `awsxrayreceiver`               | memorylimiterprocessor        | loggingexporter                    | `ecsobserver`          |
 | statsdreceiver                  | probabilisticsamplerprocessor | otlpexporter                       | `awsproxy`             |
 | zipkinreceiver                  | metricstransformprocessor     | fileexporter                       | ballastextention       |
 | jaegerreceiver                  | spanprocessor                 | otlphttpexporter                   | `sigv4authextension`   |
 | `awscontainerinsightreceiver`   | filterprocessor               | prometheusexporter                 |                        |
 |                                 | resourcedetectionprocessor    | datadogexporter                    |                        |
-|                                 | `metricsgenerationprocessor`  | dynatraceexporter                  |                        |
+|                                 | metricsgenerationprocessor  | dynatraceexporter                  |                        |
 |                                 | cumulativetodeltaprocessor    | sapmexporter                       |                        |
 |                                 | deltatorateprocessor          | signalfxexporter                   |                        |
 |                                 |                               | logzioexporter                     |                        |
-|                                 |                               | prometheusremotewriteexporter      |                        |
 
-\* Note that the `awsprometheusremotewriteexporter` will be removed at some point after v0.19.0. Users who want to send metrics to Amazon Managed Service for Prometheus will need to instead use the [Prometheus Remote Write Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/exporter/prometheusremotewriteexporter/README.md) along with the [Sigv4 Authenticator Extension](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/extension/sigv4authextension/README.md) to achieve the same result.
+\* Note that the `awsprometheusremotewriteexporter` has been removed in v0.21.0. Users who want to send metrics to Amazon Managed Service for Prometheus will need to instead use the [Prometheus Remote Write Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/exporter/prometheusremotewriteexporter/README.md) along with the [Sigv4 Authenticator Extension](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/extension/sigv4authextension/README.md) to achieve the same result.
 
 #### ADOT Collector AWS Components
 
 * [OpenTelemetry Collector](https://github.com/open-telemetry/opentelemetry-collector/)
 * [Trace X-Ray Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/awsxrayexporter)
+* [Trace X-Ray Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/awsxrayreceiver)
 * [Metrics EMF Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/awsemfexporter)
+* [Metrics ContainerInsightReceiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/awscontainerinsightreceiver)
 * [ECS Container Metrics Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/awsecscontainermetricsreceiver)
-* [StatsD Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/statsdreceiver)
 * [ECS Observer Extension](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/observer/ecsobserver)
+* [SigV4 Extension](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/sigv4authextension)
+* [AWS Proxy Extension](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/awsproxy)
+
 
 ### Getting Started
 
@@ -59,9 +61,8 @@ To build the ADOT Collector locally, you will need to have Golang installed. You
 
 #### ADOT Collector Configuration
 
-We built in a [default configuration](https://github.com/aws-observability/aws-otel-collector/blob/main/config.yaml) to our docker image and other format of release.
-So, you can run the ADOT Collector out of the box with the default settings.
-Also, the ADOT Collector configuration uses the same configuration syntax/design from [OpenTelemetry Collector](https://github.com/open-telemetry/opentelemetry-collector)
+The ADOT Collector is built with a [default configuration](https://github.com/aws-observability/aws-otel-collector/blob/main/config.yaml).
+The ADOT Collector configuration uses the same configuration syntax/design from [OpenTelemetry Collector](https://github.com/open-telemetry/opentelemetry-collector). For more information regarding OpenTelemetry Collector configuration please refer to the [upstream documentation](https://opentelemetry.io/docs/collector/configuration/). 
 so you can customize or port your OpenTelemetry Collector configuration files when running ADOT Collector. Please refer to the `Try out ADOT Collector` section on configuring ADOT Collector.
 
 #### Try out the ADOT Collector
@@ -94,13 +95,14 @@ The performance test can be conducted by following the [instructions](https://gi
 
 ### Support
 
+ Please note that as per policy, we're providing support via GitHub on a best effort basis. However, if you have AWS Enterprise Support you can create a ticket and we will provide direct support within the respective SLAs.
+
 For each merged pull request, a corresponding image with the naming convention of ```[ADOT_COLLECTOR_VERSION]-[GITHUB_SHA]``` is pushed to [public.ecr.aws/aws-otel-test/adot-collector-integration-test](https://gallery.ecr.aws/aws-otel-test/adot-collector-integration-test). 
 This image is used for the integration tests. You can pull any of the images from there, however, we will not support any issues and pull requests for these test images.
 
 ### Supported Versions
 
 Each ADOT Collector release is supported until there are two newer minor releases. For example, ADOT collector v0.16.1 will be supported until v0.18.0 is released.
-
 
 ### License
 
